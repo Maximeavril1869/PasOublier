@@ -1,5 +1,5 @@
 // Service worker : fonctionne hors ligne. Incrémenter VERSION à chaque modification des fichiers.
-const VERSION = 'pasoublier-v1';
+const VERSION = 'pasoublier-v2';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

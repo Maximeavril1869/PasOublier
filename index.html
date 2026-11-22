@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PasOublier">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>PasOublier</title>
+<style>
+:root{
+  --bg:#f4f6f8; --card:#ffffff; --txt:#16202a; --mut:#6b7885; --line:#e3e8ee;
+  --acc:#0f766e; --acc2:#14b8a6; --warn:#c2410c; --ok:#15803d; --na:#9aa5b1;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0e1419; --card:#18212a; --txt:#e8eef3; --mut:#93a1ae; --line:#27323d;
+    --acc:#2dd4bf; --acc2:#14b8a6; --warn:#fb923c; --ok:#4ade80; --na:#5b6773; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+  font:16px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+#app{display:flex;flex-direction:column;height:100%}
+header{padding:calc(env(safe-area-inset-top) + 14px) 18px 8px}
+header h1{margin:0;font-size:26px;letter-spacing:-.3px}
+header h1::first-letter{text-transform:uppercase}
+header p{margin:2px 0 0;color:var(--mut);font-size:14px}
+main{flex:1;overflow-y:auto;padding:6px 14px 24px;-webkit-overflow-scrolling:touch}
+nav{display:flex;background:var(--card);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:10px 4px 8px;font-size:12px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+nav button span.i{font-size:21px;line-height:1}
+nav button.on{color:var(--acc);font-weight:600}
+.card{background:var(--card);border-radius:16px;margin:10px 0;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
+  border-bottom:1px solid var(--line)}
+.ch h2{margin:0;font-size:16px}
+.badge{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
+.badge.full{color:var(--ok);font-weight:600}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.chk{width:30px;height:30px;border-radius:50%;border:2px solid var(--mut);background:none;flex:none;
+  display:grid;place-items:center;color:#fff;font-size:17px;padding:0}
+.row.done .chk{background:var(--ok);border-color:var(--ok)}
+.row.na .chk{border-style:dashed;border-color:var(--na)}
+.lbl{flex:1;font-size:17px}
+.row.done .lbl{color:var(--mut);text-decoration:line-through}
+.row.na .lbl{color:var(--na)}
+.nab{border:0;background:none;color:var(--mut);font-size:12px;padding:6px 4px;font-family:inherit;
+  text-decoration:underline}
+.row.na .nab{color:var(--acc)}
+.sea{font-size:12px;color:var(--mut)}
+.empty{padding:36px 20px;text-align:center;color:var(--mut)}
+.allok{text-align:center;padding:18px;color:var(--ok);font-weight:600}
+.stat{display:flex;gap:10px;margin:10px 0}
+.stat div{flex:1;background:var(--card);border-radius:16px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--mut)}
+h3{margin:20px 6px 4px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--warn)}
+.hrow{padding:11px 16px;border-bottom:1px solid var(--line)}
+.hrow:last-child{border-bottom:0}
+.hrow .top{display:flex;justify-content:space-between;gap:10px}
+.hrow small{color:var(--mut)}
+.bad{color:var(--warn)} .good{color:var(--ok)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font-size:16px;font-family:inherit;
+  background:var(--acc);color:#fff;font-weight:600;margin:8px 0}
+[data-theme-dark-text] .btn{color:#06201d}
+@media (prefers-color-scheme: dark){ .btn{color:#06201d} }
+.btn.sec{background:var(--card);color:var(--acc);border:1px solid var(--line)}
+.btn.del{background:none;color:var(--warn);font-weight:500}
+.btn.sm{display:inline-block;width:auto;padding:8px 14px;font-size:14px;margin:0}
+.mrow{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
+  border-bottom:1px solid var(--line);gap:10px}
+.mrow:last-child{border-bottom:0}
+.mrow .t{flex:1}
+.mrow button.ed{border:0;background:none;color:var(--acc);font-size:15px;font-family:inherit}
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:10}
+.sheet{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom) + 18px);
+  max-height:90%;overflow-y:auto}
+.sheet h2{margin:0 0 12px;font-size:19px}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}
+input[type=text],select,textarea{width:100%;font-size:17px;font-family:inherit;padding:11px 12px;border-radius:10px;
+  border:1px solid var(--line);background:var(--bg);color:var(--txt)}
+textarea{min-height:140px;font-size:13px;font-family:ui-monospace,Menlo,monospace}
+.two{display:flex;gap:10px}.two>*{flex:1}
+.note{font-size:13px;color:var(--mut);margin:8px 6px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1 id="ttl"></h1><p id="sub"></p></header>
+  <main id="main"></main>
+  <nav>
+    <button data-v="today"><span class="i">✅</span>Aujourd'hui</button>
+    <button data-v="hist"><span class="i">📊</span>Historique</button>
+    <button data-v="set"><span class="i">⚙️</span>Réglages</button>
+  </nav>
+</div>
+<script>
+'use strict';
+/* ---------- Données ---------- */
+const KEY = 'pasoublier.v1';
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function defaults(){
+  return {
+    seq: 100,
+    moments: [
+      {id:'m1', name:'Avant de partir de la maison', icon:'🏠'},
+      {id:'m2', name:'Avant de dormir', icon:'🌙'},
+      {id:'m3', name:'Avant de quitter le travail', icon:'🏢'}
+    ],
+    tasks: [
+      {id:'t1', moment:'m1', label:'Éteindre les lumières', season:null},
+      {id:'t2', moment:'m1', label:'Baisser les radiateurs', season:{from:11,to:3}},
+      {id:'t3', moment:'m1', label:'Fermer les fenêtres', season:null},
+      {id:'t4', moment:'m2', label:'Éteindre les lumières', season:null},
+      {id:'t5', moment:'m2', label:'Baisser les radiateurs', season:{from:11,to:3}},
+      {id:'t6', moment:'m3', label:'Éteindre la lumière du bureau', season:null}
+    ],
+    log: {}   // { 'YYYY-MM-DD': { t:{taskId:1|2}, snap:{taskId:label} } }  1 = fait, 2 = pas concerné
+  };
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ const o = JSON.parse(raw); if(o && o.moments && o.tasks && o.log) return o; }
+  }catch(e){}
+  return defaults();
+}
+let S = load();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function uid(p){ S.seq++; return p + S.seq; }
+
+/* ---------- Utilitaires ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function pad(n){ return String(n).padStart(2,'0'); }
+function dayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function parseKey(k){ const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); }
+function inSeason(season, month1){
+  if(!season) return true;
+  const {from,to} = season;
+  return from <= to ? (month1 >= from && month1 <= to) : (month1 >= from || month1 <= to);
+}
+function isDue(task, date){ return inSeason(task.season, date.getMonth()+1); }
+function seasonLabel(s){ return s ? MOIS[s.from-1]+' → '+MOIS[s.to-1] : 'toute l\'année'; }
+
+function ensureDay(key, date){
+  const d = S.log[key] || (S.log[key] = {t:{}, snap:{}});
+  S.tasks.forEach(t => { if(isDue(t, date)) d.snap[t.id] = t.label; });
+  return d;
+}
+let today = dayKey();
+function todayLog(){ return ensureDay(today, parseKey(today)); }
+
+/* ---------- Actions ---------- */
+function setState(id, st){
+  const d = todayLog();
+  if(d.t[id] === st) delete d.t[id]; else d.t[id] = st;
+  save(); render();
+}
+
+/* ---------- Vues ---------- */
+let view = 'today';
+const $main = document.getElementById('main');
+
+function viewToday(){
+  const date = parseKey(today), d = todayLog();
+  let html = '', total = 0, done = 0;
+  S.moments.forEach(m => {
+    const ts = S.tasks.filter(t => t.moment === m.id && isDue(t, date));
+    if(!ts.length) return;
+    const n = ts.filter(t => d.t[t.id] !== 2);
+    const ok = n.filter(t => d.t[t.id] === 1).length;
+    total += n.length; done += ok;
+    const full = n.length > 0 && ok === n.length;
+    html += `<section class="card"><div class="ch"><h2>${esc(m.icon||'')} ${esc(m.name)}</h2>
+      <span class="badge ${full?'full':''}">${full?'✓ ':''}${ok}/${n.length}</span></div>`;
+    ts.forEach(t => {
+      const st = d.t[t.id];
+      html += `<div class="row ${st===1?'done':''} ${st===2?'na':''}">
+        <button class="chk" data-act="done" data-id="${t.id}" aria-label="Fait">${st===1?'✓':''}</button>
+        <div class="lbl">${esc(t.label)}${t.season?`<div class="sea">${esc(seasonLabel(t.season))}</div>`:''}</div>
+        <button class="nab" data-act="na" data-id="${t.id}">${st===2?'annuler':'pas concerné'}</button>
+      </div>`;
+    });
+    html += '</section>';
+  });
+  if(!html) html = `<div class="empty">Aucune tâche pour aujourd'hui.<br>Ajoute-en dans Réglages.</div>`;
+  else if(total > 0 && done === total) html = `<div class="allok">🎉 Tout est fait pour aujourd'hui</div>` + html;
+  return html;
+}
+
+function viewHist(){
+  const t0 = parseKey(today), cutoff = new Date(t0); cutoff.setDate(cutoff.getDate()-30);
+  const ck = dayKey(cutoff);
+  const keys = Object.keys(S.log).filter(k => k < today).sort();
+  const recent = keys.filter(k => k >= ck);
+  const agg = {};   // label -> {forgot,total}
+  const days = [];
+  recent.forEach(k => {
+    const d = S.log[k], forgot = [];
+    Object.keys(d.snap).forEach(id => {
+      const st = d.t[id]; if(st === 2) return;
+      const lab = d.snap[id];
+      const a = agg[lab] || (agg[lab] = {forgot:0, total:0});
+      a.total++;
+      if(st !== 1){ a.forgot++; forgot.push(lab); }
+    });
+    days.push({k, forgot, n:Object.keys(d.snap).length});
+  });
+  // série sans oubli
+  let streak = 0;
+  for(let i=1; i<=365; i++){
+    const dd = new Date(t0); dd.setDate(dd.getDate()-i);
+    const rec = days.find(x => x.k === dayKey(dd));
+    if(rec && rec.forgot.length === 0) streak++; else break;
+  }
+  const totForgot = days.reduce((s,x) => s + x.forgot.length, 0);
+  const daysClean = days.filter(x => x.forgot.length === 0).length;
+  let html = `<div class="stat">
+    <div><b>${totForgot}</b><span>oubli${totForgot>1?'s':''} sur 30 jours</span></div>
+    <div><b>${streak}</b><span>jour${streak>1?'s':''} d'affilée sans oubli</span></div></div>`;
+  if(!days.length){
+    return html + `<div class="empty">Pas encore d'historique.<br>Il se remplit à partir de demain : les tâches non cochées d'un jour passé comptent comme oubliées.</div>`;
+  }
+  html += `<div class="note">${daysClean} jour${daysClean>1?'s':''} sans oubli sur ${days.length} jour${days.length>1?'s':''} où l'app a été ouverte. Les jours sans ouverture ne sont pas comptés. Utilise « pas concerné » pour ne pas fausser les chiffres.</div>`;
+  const rows = Object.entries(agg).filter(([,a]) => a.forgot > 0).sort((a,b) => b[1].forgot - a[1].forgot);
+  html += '<h3>Ce que tu oublies le plus</h3><section class="card">';
+  if(!rows.length) html += '<div class="empty">Aucun oubli. Bravo.</div>';
+  rows.forEach(([lab,a]) => {
+    const pct = Math.round(100*a.forgot/a.total);
+    html += `<div class="hrow"><div class="top"><span>${esc(lab)}</span><span class="bad">${a.forgot} / ${a.total}</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  });
+  html += '</section><h3>Derniers jours</h3><section class="card">';
+  days.slice(-14).reverse().forEach(x => {
+    const dt = parseKey(x.k);
+    const lab = dt.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
+    html += `<div class="hrow"><div class="top"><span>${esc(lab)}</span>
+      <span class="${x.forgot.length?'bad':'good'}">${x.forgot.length ? x.forgot.length+' oubli'+(x.forgot.length>1?'s':'') : '✓ rien oublié'}</span></div>
+      ${x.forgot.length?`<small>${x.forgot.map(esc).join(', ')}</small>`:''}</div>`;
+  });
+  return html + '</section>';
+}
+
+function viewSet(){
+  let html = '';
+  S.moments.forEach(m => {
+    const ts = S.tasks.filter(t => t.moment === m.id);
+    html += `<section class="card"><div class="ch"><h2>${esc(m.icon||'')} ${esc(m.name)}</h2>
+      <button class="ed" style="border:0;background:none;color:var(--acc);font-size:15px" data-act="editM" data-id="${m.id}">Modifier</button></div>`;
+    ts.forEach(t => {
+      html += `<div class="mrow"><div class="t">${esc(t.label)}<div class="sea">${esc(seasonLabel(t.season))}</div></div>
+        <button class="ed" data-act="editT" data-id="${t.id}">Modifier</button></div>`;
+    });
+    html += `<div class="mrow"><button class="btn sec sm" data-act="addT" data-id="${m.id}">+ Ajouter une tâche</button></div></section>`;
+  });
+  html += `<button class="btn sec" data-act="addM">+ Nouveau moment (ex. « En partant en week-end »)</button>
+    <h3>Sauvegarde</h3>
+    <div class="note">Les données restent sur ce téléphone uniquement. Si tu supprimes l'app ou vides les données du site, elles disparaissent : pense à copier une sauvegarde de temps en temps.</div>
+    <button class="btn sec" data-act="exp">Copier la sauvegarde</button>
+    <button class="btn sec" data-act="imp">Restaurer une sauvegarde</button>`;
+  return html;
+}
+
+function render(){
+  const now = parseKey(today);
+  document.getElementById('ttl').textContent =
+    view==='today' ? now.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'})
+    : view==='hist' ? 'Historique' : 'Réglages';
+  document.getElementById('sub').textContent =
+    view==='today' ? 'Ce qu\'il ne faut pas oublier'
+    : view==='hist' ? 'Pour voir si tu oublies souvent' : 'Moments, tâches, saisons';
+  const keepScroll = $main.scrollTop;
+  $main.innerHTML = view==='today' ? viewToday() : view==='hist' ? viewHist() : viewSet();
+  $main.scrollTop = keepScroll;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === view));
+}
+
+/* ---------- Feuilles de saisie ---------- */
+function openSheet(inner){
+  closeSheet();
+  const sh = document.createElement('div');
+  sh.className = 'shade'; sh.id = 'shade';
+  sh.innerHTML = `<div class="sheet">${inner}</div>`;
+  sh.addEventListener('click', e => { if(e.target === sh) closeSheet(); });
+  document.body.appendChild(sh);
+  return sh;
+}
+function closeSheet(){ const s = document.getElementById('shade'); if(s) s.remove(); }
+const monthOpts = sel => MOIS.map((m,i) => `<option value="${i+1}" ${sel===i+1?'selected':''}>${m}</option>`).join('');
+
+function sheetTask(id, momentId){
+  const t = id ? S.tasks.find(x => x.id === id) : {label:'', moment:momentId, season:null};
+  const mode = !t.season ? 'all' : (t.season.from===11 && t.season.to===3 ? 'winter' : 'custom');
+  const cs = t.season || {from:11, to:3};
+  const sh = openSheet(`<h2>${id?'Modifier la tâche':'Nouvelle tâche'}</h2>
+    <label>Intitulé</label><input type="text" id="f_l" value="${esc(t.label)}" placeholder="Ex. Éteindre la lumière de la cave">
+    <label>Moment</label><select id="f_m">${S.moments.map(m => `<option value="${m.id}" ${m.id===t.moment?'selected':''}>${esc(m.name)}</option>`).join('')}</select>
+    <label>Période</label><select id="f_s">
+      <option value="all" ${mode==='all'?'selected':''}>Toute l'année</option>
+      <option value="winter" ${mode==='winter'?'selected':''}>Hiver (novembre → mars)</option>
+      <option value="custom" ${mode==='custom'?'selected':''}>Personnalisée…</option></select>
+    <div class="two" id="f_c" style="display:${mode==='custom'?'flex':'none'}">
+      <div><label>De</label><select id="f_f">${monthOpts(cs.from)}</select></div>
+      <div><label>À</label><select id="f_t">${monthOpts(cs.to)}</select></div></div>
+    <button class="btn" id="f_ok">Enregistrer</button>
+    ${id?'<button class="btn del" id="f_del">Supprimer cette tâche</button>':''}
+    <button class="btn sec" id="f_no">Annuler</button>`);
+  sh.querySelector('#f_s').onchange = e => { sh.querySelector('#f_c').style.display = e.target.value==='custom' ? 'flex' : 'none'; };
+  sh.querySelector('#f_no').onclick = closeSheet;
+  sh.querySelector('#f_ok').onclick = () => {
+    const label = sh.querySelector('#f_l').value.trim();
+    if(!label){ sh.querySelector('#f_l').focus(); return; }
+    const m = sh.querySelector('#f_s').value;
+    const season = m==='all' ? null : m==='winter' ? {from:11,to:3}
+      : {from:+sh.querySelector('#f_f').value, to:+sh.querySelector('#f_t').value};
+    const mom = sh.querySelector('#f_m').value;
+    if(id){ Object.assign(t, {label, season, moment:mom}); }
+    else S.tasks.push({id:uid('t'), label, season, moment:mom});
+    save(); closeSheet(); render();
+  };
+  if(id) sh.querySelector('#f_del').onclick = () => {
+    if(!confirm('Supprimer cette tâche ?')) return;
+    S.tasks = S.tasks.filter(x => x.id !== id);
+    const d = S.log[today]; if(d){ delete d.snap[id]; delete d.t[id]; }
+    save(); closeSheet(); render();
+  };
+}
+
+function sheetMoment(id){
+  const m = id ? S.moments.find(x => x.id === id) : {name:'', icon:'📍'};
+  const sh = openSheet(`<h2>${id?'Modifier le moment':'Nouveau moment'}</h2>
+    <label>Nom</label><input type="text" id="g_n" value="${esc(m.name)}" placeholder="Ex. En partant en week-end">
+    <label>Icône (un emoji)</label><input type="text" id="g_i" value="${esc(m.icon||'')}" maxlength="4">
+    <button class="btn" id="g_ok">Enregistrer</button>
+    ${id?'<button class="btn del" id="g_del">Supprimer ce moment et ses tâches</button>':''}
+    <button class="btn sec" id="g_no">Annuler</button>`);
+  sh.querySelector('#g_no').onclick = closeSheet;
+  sh.querySelector('#g_ok').onclick = () => {
+    const name = sh.querySelector('#g_n').value.trim(); if(!name){ sh.querySelector('#g_n').focus(); return; }
+    const icon = sh.querySelector('#g_i').value.trim();
+    if(id){ m.name = name; m.icon = icon; } else S.moments.push({id:uid('m'), name, icon});
+    save(); closeSheet(); render();
+  };
+  if(id) sh.querySelector('#g_del').onclick = () => {
+    if(!confirm('Supprimer ce moment et toutes ses tâches ?')) return;
+    const ids = S.tasks.filter(t => t.moment === id).map(t => t.id);
+    S.tasks = S.tasks.filter(t => t.moment !== id);
+    S.moments = S.moments.filter(x => x.id !== id);
+    const d = S.log[today]; if(d) ids.forEach(i => { delete d.snap[i]; delete d.t[i]; });
+    save(); closeSheet(); render();
+  };
+}
+
+function sheetImport(){
+  const sh = openSheet(`<h2>Restaurer une sauvegarde</h2>
+    <div class="note">Colle ici le texte copié depuis « Copier la sauvegarde ». Cela remplace toutes les données actuelles.</div>
+    <textarea id="i_t" placeholder="{…}"></textarea>
+    <button class="btn" id="i_ok">Restaurer</button><button class="btn sec" id="i_no">Annuler</button>`);
+  sh.querySelector('#i_no').onclick = closeSheet;
+  sh.querySelector('#i_ok').onclick = () => {
+    try{
+      const o = JSON.parse(sh.querySelector('#i_t').value);
+      if(!o || !Array.isArray(o.moments) || !Array.isArray(o.tasks) || typeof o.log !== 'object') throw 0;
+      o.seq = o.seq || 1000; S = o; save(); closeSheet(); render();
+    }catch(e){ alert('Sauvegarde invalide.'); }
+  };
+}
+async function exportData(){
+  const txt = JSON.stringify(S);
+  try{ await navigator.clipboard.writeText(txt); alert('Sauvegarde copiée. Colle-la dans une note pour la garder.'); }
+  catch(e){
+    const sh = openSheet(`<h2>Sauvegarde</h2><div class="note">Copie ce texte et garde-le dans une note.</div>
+      <textarea id="e_t" readonly>${esc(txt)}</textarea><button class="btn" id="e_ok">Fermer</button>`);
+    sh.querySelector('#e_t').select(); sh.querySelector('#e_ok').onclick = closeSheet;
+  }
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener('click', e => {
+  const nb = e.target.closest('nav button');
+  if(nb){ view = nb.dataset.v; render(); $main.scrollTop = 0; return; }
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act, id = b.dataset.id;
+  if(a==='done') setState(id, 1);
+  else if(a==='na') setState(id, 2);
+  else if(a==='editT') sheetTask(id);
+  else if(a==='addT') sheetTask(null, id);
+  else if(a==='editM') sheetMoment(id);
+  else if(a==='addM') sheetMoment(null);
+  else if(a==='exp') exportData();
+  else if(a==='imp') sheetImport();
+});
+
+function checkNewDay(){
+  const k = dayKey();
+  if(k !== today){ today = k; }
+  todayLog(); save(); render();
+}
+document.addEventListener('visibilitychange', () => { if(!document.hidden) checkNewDay(); });
+setInterval(() => { if(dayKey() !== today) checkNewDay(); }, 60000);
+
+todayLog(); save(); render();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

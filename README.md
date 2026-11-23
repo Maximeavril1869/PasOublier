@@ -7,6 +7,7 @@ Tout reste **en local sur le téléphone** (aucun serveur, aucun compte, aucune 
 ## Fonctions
 
 - **Checklists par moment** : « Avant de partir de la maison », « Avant de dormir », « Avant de quitter le travail » (modifiables, on peut en créer d'autres).
+- **Tri manuel** : flèches ↑ ↓ dans Réglages pour ordonner les tâches de chaque moment et les moments eux-mêmes.
 - **Remise à zéro chaque jour** : les cases se décochent d'elles-mêmes le lendemain.
 - **Saisonnalité** : une tâche peut n'apparaître que sur certains mois (ex. radiateurs de novembre à mars).
 - **« Pas concerné »** : pour une tâche qui ne s'applique pas ce jour-là, sans fausser les statistiques.

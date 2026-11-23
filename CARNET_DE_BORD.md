@@ -4,7 +4,7 @@ Journal de toutes les opérations réalisées. À relire pour savoir où en est 
 
 ## État actuel
 
-Version 1 développée et testée en navigateur simulé. En attente de validation sur iPhone par l'utilisateur.
+Version 1.1 (tri manuel ajouté) développée et testée en navigateur simulé. En attente de validation sur iPhone par l'utilisateur.
 
 ## Journal
 
@@ -17,6 +17,13 @@ Version 1 développée et testée en navigateur simulé. En attente de validatio
 - Rédaction README, ARCHITECTURE, LICENSE (tous droits réservés), ce carnet.
 - Publication sur la branche `main`.
 - L'utilisateur crée ses tâches lui-même : suppression des tâches par défaut (l'app démarre avec les 3 moments et aucune tâche). Version du cache passée à v2.
+
+### 2026-11-23 : version 1.1
+- Demande : tri manuel des tâches à effectuer.
+- Décisions validées avec l'utilisateur : tri dans Réglages (Aujourd'hui reprend cet ordre) ; boutons flèches ↑ ↓ (pas de glisser-déposer) ; tri des tâches dans chaque moment ET des moments entre eux.
+- Code : `moveItem()` dans `index.html` (échange avec le voisin du même moment pour les tâches) ; l'ordre est celui des tableaux `S.moments` / `S.tasks`, donc sauvegardé et restauré avec le reste, sans changement de format de données.
+- Numéro de version affiché en bas de Réglages (constante `APP_VERSION`). Cache du service worker passé à v3.
+- Tests automatisés en navigateur headless mobile : monter/descendre, butées (boutons grisés), tri des moments, persistance après rechargement, ordre repris dans Aujourd'hui : OK, aucune erreur JS.
 
 ## Reste à faire / idées
 

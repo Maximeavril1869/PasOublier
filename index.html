@@ -81,6 +81,11 @@ h3{margin:20px 6px 4px;font-size:13px;text-transform:uppercase;letter-spacing:.6
 .mrow:last-child{border-bottom:0}
 .mrow .t{flex:1}
 .mrow button.ed{border:0;background:none;color:var(--acc);font-size:15px;font-family:inherit}
+.mv{display:flex;gap:6px;flex:none}
+.mv button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--bg);
+  color:var(--acc);font-size:17px;font-family:inherit;padding:0;line-height:1}
+.mv button:disabled{opacity:.3}
+.ver{text-align:center;color:var(--mut);font-size:12px;margin:18px 0 4px}
 .shade{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:10}
 .sheet{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:18px 18px calc(env(safe-area-inset-bottom) + 18px);
   max-height:90%;overflow-y:auto}
@@ -106,6 +111,7 @@ textarea{min-height:140px;font-size:13px;font-family:ui-monospace,Menlo,monospac
 <script>
 'use strict';
 /* ---------- Données ---------- */
+const APP_VERSION = '1.1';
 const KEY = 'pasoublier.v1';
 const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
@@ -157,6 +163,16 @@ function todayLog(){ return ensureDay(today, parseKey(today)); }
 function setState(id, st){
   const d = todayLog();
   if(d.t[id] === st) delete d.t[id]; else d.t[id] = st;
+  save(); render();
+}
+
+function moveItem(arr, id, dir, sameGroup){
+  // déplace l'élément d'un cran parmi ses voisins (même moment pour les tâches)
+  const i = arr.findIndex(x => x.id === id); if(i < 0) return;
+  let j = i + dir;
+  while(j >= 0 && j < arr.length && !sameGroup(arr[i], arr[j])) j += dir;
+  if(j < 0 || j >= arr.length) return;
+  const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
   save(); render();
 }
 
@@ -246,12 +262,20 @@ function viewHist(){
 
 function viewSet(){
   let html = '';
-  S.moments.forEach(m => {
+  S.moments.forEach((m, mi) => {
     const ts = S.tasks.filter(t => t.moment === m.id);
     html += `<section class="card"><div class="ch"><h2>${esc(m.icon||'')} ${esc(m.name)}</h2>
-      <button class="ed" style="border:0;background:none;color:var(--acc);font-size:15px" data-act="editM" data-id="${m.id}">Modifier</button></div>`;
-    ts.forEach(t => {
+      <div class="mv">
+        <button data-act="upM" data-id="${m.id}" aria-label="Monter le moment" ${mi===0?'disabled':''}>↑</button>
+        <button data-act="dnM" data-id="${m.id}" aria-label="Descendre le moment" ${mi===S.moments.length-1?'disabled':''}>↓</button>
+        <button class="ed" style="width:auto;border:0;background:none;font-size:15px;padding:0 4px" data-act="editM" data-id="${m.id}">Modifier</button>
+      </div></div>`;
+    ts.forEach((t, ti) => {
       html += `<div class="mrow"><div class="t">${esc(t.label)}<div class="sea">${esc(seasonLabel(t.season))}</div></div>
+        <div class="mv">
+          <button data-act="upT" data-id="${t.id}" aria-label="Monter la tâche" ${ti===0?'disabled':''}>↑</button>
+          <button data-act="dnT" data-id="${t.id}" aria-label="Descendre la tâche" ${ti===ts.length-1?'disabled':''}>↓</button>
+        </div>
         <button class="ed" data-act="editT" data-id="${t.id}">Modifier</button></div>`;
     });
     html += `<div class="mrow"><button class="btn sec sm" data-act="addT" data-id="${m.id}">+ Ajouter une tâche</button></div></section>`;
@@ -260,7 +284,8 @@ function viewSet(){
     <h3>Sauvegarde</h3>
     <div class="note">Les données restent sur ce téléphone uniquement. Si tu supprimes l'app ou vides les données du site, elles disparaissent : pense à copier une sauvegarde de temps en temps.</div>
     <button class="btn sec" data-act="exp">Copier la sauvegarde</button>
-    <button class="btn sec" data-act="imp">Restaurer une sauvegarde</button>`;
+    <button class="btn sec" data-act="imp">Restaurer une sauvegarde</button>
+    <div class="ver">PasOublier · version ${APP_VERSION}</div>`;
   return html;
 }
 
@@ -390,6 +415,11 @@ document.addEventListener('click', e => {
   else if(a==='addT') sheetTask(null, id);
   else if(a==='editM') sheetMoment(id);
   else if(a==='addM') sheetMoment(null);
+  else if(a==='upT' || a==='dnT'){
+    const dir = a==='upT' ? -1 : 1;
+    moveItem(S.tasks, id, dir, (x,y) => x.moment === y.moment);
+  }
+  else if(a==='upM' || a==='dnM') moveItem(S.moments, id, a==='upM' ? -1 : 1, () => true);
   else if(a==='exp') exportData();
   else if(a==='imp') sheetImport();
 });

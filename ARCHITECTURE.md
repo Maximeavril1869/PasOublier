@@ -40,13 +40,21 @@ Hébergement : GitHub Pages (branche `main`, racine). Tous les chemins sont rela
 - Changement de jour détecté au retour au premier plan et chaque minute : la vue repart de zéro.
 - Historique : calculé uniquement sur les jours passés où l'app a été ouverte (les jours sans ouverture ne comptent pas).
 
+## Ordre manuel
+
+L'ordre d'affichage est l'ordre des tableaux `moments` et `tasks` (pas de champ d'ordre séparé). `moveItem(tableau, id, ±1, mêmeGroupe)` échange un élément avec son voisin : pour les tâches, le voisin est cherché parmi celles du même moment. Réglages permet de déplacer ; Aujourd'hui reprend l'ordre.
+
+## Version
+
+Constante `APP_VERSION` dans `index.html` (affichée en bas de Réglages) ; `VERSION` du cache dans `sw.js` à incrémenter en même temps.
+
 ## Vues
 
 | Vue | Contenu |
 |---|---|
 | Aujourd'hui | Cartes par moment, case à cocher, « pas concerné » |
 | Historique | Oublis sur 30 jours, tâches les plus oubliées, 14 derniers jours, série |
-| Réglages | Gestion moments et tâches (feuilles de saisie), sauvegarde/restauration JSON |
+| Réglages | Gestion et tri manuel (↑ ↓) des moments et tâches, sauvegarde/restauration JSON, numéro de version |
 
 ## Contraintes assumées
 
